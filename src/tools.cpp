@@ -1,6 +1,8 @@
 #include <iostream>
+#include <cmath>
 #include "tools.h"
 
+using namespace std;
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
@@ -13,22 +15,18 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth)
 {
   int num_measurements = estimations.size();
-  VectorXd residuals(estimations[0].size());
+  int num_variables = estimations[0].size();
+  VectorXd residuals = VectorXd::Zero(num_variables);
 
-  for (int i = 0; i < num_measurements; i++)
+  for (int i = 0; i < num_variables; i++)
   {
-    residuals += estimations[i] - ground_truth[i];
+    for (int j = 0; j < num_measurements; j++)
+    {
+      residuals[i] += pow(estimations[j][i] - ground_truth[j][i], 2);
+    }
+
+    residuals[i] = sqrt(residuals[i] / num_measurements);
   }
 
-  return residuals / num_measurements;
-}
-
-MatrixXd Tools::CalculateJacobian(const VectorXd& x_state)
-{
-  /**
-  TODO:
-    * Calculate a Jacobian here.
-  */
-
-  return x_state;
+  return residuals;
 }
